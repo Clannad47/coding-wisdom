@@ -14,3 +14,23 @@ Desktop.ini
 __pycache__/
 *.pyc
 .venv/
+
+# sync file
+sync.ffs_db
+
+# Personal knowledge data
+/inbox/**
+!/inbox/**/
+!/inbox/**/.gitkeep
+
+# references/ is tracked — your distilled knowledge is your portfolio
+/references/**/*.md
+!/references/**/
+!/references/**/.gitkeep
+
+# Claude
+.claude/**
+
+
+# docs
+docs/*

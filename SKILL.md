@@ -1,159 +1,101 @@
 ---
 name: coding-wisdom
 description: 从编码会话中捕获认知裂缝，蒸馏为开发者的通用能力。当识别到重构、bug修复、模式复现、方案选择、技术研究等认知裂缝时自动触发。
-triggers:
-  - type: refactor
-    tier: high
-    condition: "agent 执行了结构性重构"
-  - type: bugfix
-    tier: high
-    condition: "agent 修复了一个非平凡的 bug"
-  - type: pattern
-    tier: high
-    condition: "在不同项目/模块中识别到相似模式"
-  - type: decision
-    tier: low
-    condition: "agent 在多个方案中做了选择，且被放弃的方案有合理理由"
-  - type: research
-    tier: low
-    condition: "agent 完成技术研究，产出非文档直接结论"
-ignore_rules:
-  - "纯格式化改动（缩进、空行、import 排序）"
-  - "简单重命名（变量、函数名）"
-  - "配置文件修改（版本号、端口号）"
-  - "测试文件的 mock 调整"
-capture_format:
-  filename: "{date}_{fix|learn}_{对象}.md"
-  template: "crack"
-  location: "inbox/{tier}/"
-auto_expire:
-  high: never
-  low: 7d
 ---
 
 # Coding Wisdom
 
-## 这是什么
+从编码会话中自动捕获认知裂缝，并在开发者有空时把它们蒸馏成可复用的工程判断。
 
-一个从编码会话中自动捕获认知裂缝的系统。
-你在编码时学到的东西会被 agent 零摩擦地记录下来，
-等你有空的时候再做深度消化。
+核心哲学：蒸馏不是归档。蒸馏是把项目细节转化为通用原则，并用外部知识、对比结构和可操作规则校准它。文件移动只是最后的副作用。
 
 ## 目录结构
 
-```
+```text
 coding-wisdom/
-├── SKILL.md              # 本文件：agent 指令 + 开发者指南
-├── inbox/                # 捕获区
-│   ├── high/             # 高价值裂缝，永不过期，开发者必看
-│   └── low/              # 低价值裂缝，7 天后自动消失
-├── references/           # 蒸馏后的知识库
-│   ├── architecture/     # 架构认知
-│   ├── coding/           # 编码技巧
-│   ├── mindset/          # 思维方式
-│   └── techstack/        # 技术栈认知
-└── OVERVIEW.md           # 全局知识地图
+├── SKILL.md              # 触发规则、捕获协议、动态加载路由
+├── guides/               # 低频深流程，按需加载
+├── templates/            # 捕获和蒸馏条目模板
+├── inbox/                # 捕获区，本地个人数据
+│   ├── high/
+│   └── low/
+├── references/           # 蒸馏后的个人知识库，本地个人数据
+└── OVERVIEW.md           # 由 scripts/sync-overview.sh 自动生成，禁止手动编辑
 ```
 
-## Agent 指令
+## 动态加载
 
-### 捕获规则
+只在需要时读取额外文件：
 
-当以下事件发生时，往 inbox/ 写入一条知识：
+- 捕获新裂缝：读取 `templates/capture-entry.md`。
+- 用户要求蒸馏、整理 inbox、移动到 references：读取 `guides/distillation.md` 和 `templates/distilled-entry.md`。
+- 需要补强泛化质量：读取 `guides/generalization.md`。
+- 需要联网研究或校准洞察：读取 `guides/web-calibration.md`。
+- 需要补图或判断图是否合格：读取 `guides/ascii-diagrams.md`。
 
-1. **重构**（high）— 执行了结构性重构（数据结构变更、模块拆分、架构调整）
-2. **Bug 修复**（high）— 修复了一个非平凡的 bug（逻辑错误、设计缺陷）
-3. **模式复现**（high）— 在不同项目或模块中识别到相似模式
-4. **方案选择**（low）— 在多个实现方案中做了选择，被放弃的方案有合理理由
-5. **技术研究**（low）— 完成技术研究，产出非文档直接结论
+不要在普通编码捕获阶段加载蒸馏 guide。
 
-### 噪音过滤
+## 捕获规则
+
+当以下事件发生时，往 `inbox/` 写入一条知识：
+
+1. 重构（high）：执行了结构性重构，例如数据结构变更、模块拆分、架构调整。
+2. Bug 修复（high）：修复了非平凡 bug，例如逻辑错误、设计缺陷。
+3. 模式复现（high）：在不同项目或模块中识别到相似模式。
+4. 方案选择（low）：在多个实现方案中做了选择，且被放弃的方案有合理理由。
+5. 技术研究（low）：完成技术研究，产出非文档直接结论。
+
+## 噪音过滤
 
 以下情况不捕获：
-- 纯格式化改动（缩进、空行、import 排序）
-- 简单重命名（变量、函数名）
-- 配置文件修改（版本号、端口号）
-- 测试文件的 mock 调整
 
-### 写入流程
+- 纯格式化改动，例如缩进、空行、import 排序。
+- 简单重命名，例如变量名、函数名。
+- 配置文件修改，例如版本号、端口号。
+- 测试文件的 mock 调整。
 
-1. 判断触发类型和 tier（high/low）
-2. 生成文件名：`{YYYY-MM-DD}_{fix|learn}_{对象描述}.md`
-   - `fix`：以前理解错了，现在修正
-   - `learn`：以前不知道，现在知道了
-3. 写入 `inbox/{tier}/` 目录
-4. 使用条目模板（见下方）
-5. 写入后，检查同目录是否有相关条目，如有则在 frontmatter 的 links 中关联
+## 捕获流程
 
-### 条目模板
+1. 判断触发类型和 tier。
+2. 生成文件名：`{YYYY-MM-DD}_{fix|learn}_{对象描述}.md`。
+   - `fix`：以前理解错了，现在修正。
+   - `learn`：以前不知道，现在知道了。
+3. 写入 `inbox/{tier}/`。
+4. 使用 `templates/capture-entry.md`。
+5. 写入后检查同目录是否有相关条目；如有，在 frontmatter 的 `links` 中关联。
 
-```markdown
----
-trigger: "触发事件描述"
-crack: "fix 或 learn"
-links:
-  - path/to/related.md
-created: YYYY-MM-DD
----
+## 捕获格式
 
-# 标题即洞察（一句话概括认知裂缝）
+- 文件名：`{date}_{fix|learn}_{对象}.md`
+- 模板：`templates/capture-entry.md`
+- 位置：`inbox/{tier}/`
+- 保留期：`high` 永不过期，`low` 默认 7 天后可清理。
 
-## 我以为
-（你之前的理解，一两句话）
+## 索引维护
 
-## 其实是
-（你现在的理解，一两句话）
+`_index.md` 是单一事实源。`OVERVIEW.md` 由 sync 脚本自动生成，禁止手动编辑。
 
-## 背景
-（项目名 + 阶段 + 场景描述，自然语言）
+蒸馏阶段写入或修改 `references/` 条目后：
+1. 更新目标目录的 `_index.md`（这是你唯一需要手动改的文件）。
+2. 运行 sync 脚本重新生成 `OVERVIEW.md`：
+   - macOS / Linux / Windows Git Bash: `bash scripts/sync-overview.sh`
+   - Windows PowerShell: `powershell -ExecutionPolicy Bypass -File scripts/sync-overview.ps1`
 
-## 泛化（蒸馏时补充）
-（从项目细节到通用原则）
-```
+远端保留初始版模板；本地私改 `_index.md` 和 `OVERVIEW.md` 后应使用 `git update-index --skip-worktree` 避免把个人内容提交到云端。
 
-### _index.md 维护
+## 开发者工作流
 
-当往某个 references/ 子目录写入或修改条目时，
-顺便更新该目录的 `_index.md`，保持 3-5 句话的领域认知快照。
+捕获应低摩擦，能在 30 秒内写完。蒸馏应低频高质量，只有当 `inbox/high/` 有足够材料、且开发者明确要整理时才启动。
 
-### 衰减检查
+使用本 skill 时：
 
-在蒸馏阶段，运行以下命令找出超过 90 天未更新的条目：
-```bash
-find references/ -name "*.md" -not -name "_index.md" -mtime +90
-```
-将结果展示给开发者，由开发者决定：更新、合并、或删除。
+- 正常编码时，只做捕获判断和最小条目写入。
+- 蒸馏时，先读 `guides/distillation.md`，再处理文件移动和索引更新。
+- 复用知识时，按当前问题检索 `references/`，不要预读整个知识库。
 
----
+## 与现有系统的关系
 
-## 开发者指南
-
-### 怎么蒸馏
-
-建议每周花 15 分钟做一次蒸馏：
-
-1. 浏览 `inbox/high/`，按标题挑选 2-3 条值得深入的
-2. 给每条补充 `泛化` 节 — 从项目细节抽象到通用原则
-3. 移入 `references/` 对应目录
-4. agent 会自动更新目标目录的 `_index.md`
-5. 审视 `inbox/low/` 中剩余的条目，有价值的提升到 high
-6. 删除不再需要的条目
-
-### 怎么利用
-
-- 在新项目中，agent 会自动检索 `references/` 中的知识
-- 你也可以手动浏览 `references/` 来复习
-- `OVERVIEW.md` 展示你的知识版图全貌
-
-### 知识的生命周期
-
-```
-编码 → agent 捕获 → inbox → 蒸馏 → references → 复用 → 新捕获
-```
-
-### 与现有系统的关系
-
-- `CLAUDE.md` → 人格 + 工作流约束（不冲突）
-- `MEMORY.md` → 跨会话上下文（不冲突）
-- `lessons` → 项目级错题集（互补：lessons 是项目级，coding-wisdom 是全局级）
-- `coding-wisdom` → 开发者能力增长引擎
+- `CLAUDE.md`：项目级约束和工作流规则。
+- `MEMORY.md`：跨会话上下文记忆。
+- `lessons`：项目级错题集。
+- `coding-wisdom`：跨项目的个人工程判断增长系统。

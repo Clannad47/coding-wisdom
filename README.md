@@ -1,32 +1,105 @@
 # Coding Wisdom
 
-> 一个 Claude Code skill：从编码会话中自动捕获认知裂缝，蒸馏为你的通用工程能力。
+<p align="center">
+  <img src="LOGO.png" width="150" alt="Coding Wisdom">
+</p>
 
-你和 AI agent 一起写代码的时候，每天都在学到新东西——一个反直觉的设计决策、一个踩过的坑、一个比你方案更好的实现。
+> **agent 错题集 + 你的能力增强计。**
 
-但这些洞察在编码结束后就消失了。
+---
 
-**Coding Wisdom 帮你留住它们。**
+## 你正在经历这个
 
-## 它怎么工作
+周一。你用 agent 啃一个 Kafka 消费端背压问题。
+你从来没写过消息队列。agent 帮你写了，代码跑通了。
 
+周三。另一个项目，消费又慢了。你打开代码，盯着消费者配置。
+上周的代码是你看着 agent 写的，但那些决策——
+为什么信号量挡在入口、auto-commit 为什么是敌人——你没记住。
+agent 替你做了判断，你没把判断变成自己的。
+
+> **agent 把答案给了你，但判断过程没给。**
+
+**AI 是能力倍增器，但倍增器的支点是你自己的基线。**
+基线不涨，乘出来的结果永远锁死在那个支点上。
+
+---
+
+**coding-wisdom 做的事情很简单：**
+
+① agent 替你跨过去的那个门槛——它自动记下来
+② 你有空时，15 分钟蒸馏成**属于你的判断力**
+③ 下次再遇到，你不靠 agent 也能做出正确决策
+
+---
+
+## 它是什么
+
+```mermaid
+flowchart TD
+    SRC["agent 解题过程"]
+
+    SRC --> INBOX
+
+    subgraph SYSTEM[" "]
+        direction LR
+        INBOX["<b>inbox/</b><br/>agent 错题集<br/><br/>记录 agent 替你做的每一个判断"]
+        REFS["<b>references/</b><br/>你的工程判断<br/><br/>记录你吸收了什么<br/>能从 agent 手中带走什么"]
+
+        INBOX -->|"蒸馏"| REFS
+    end
 ```
-你编码 → agent 识别认知裂缝 → 零摩擦写入 inbox
-                ↓
-        你有空时浏览 inbox → 蒸馏为通用原则 → 存入 references
-                ↓
-        下次编码 → agent 检索 references → 你复用旧知识
-                ↓
-            你变得更强了
+
+**是 agent 错题集**：agent 帮你解决了 Kafka rebalance、JWT 续期、分库分表——那些你第一次接触就被推着往前走的时刻，不记下来就永远没了。
+
+**是你的增强计**：每周打开 `OVERVIEW.md`，看一眼知识版图。那个数字不是 agent 有多强——**是你内化了多少判断力。**
+
+---
+
+## 用之前 vs 用之后
+
+一个 Kafka 背压问题。时间线相同，结果不同。
+
+```mermaid
+flowchart LR
+    subgraph WITHOUT["WITHOUT coding-wisdom"]
+        direction TB
+        w1["agent 帮你搞定了"] --> w2["你 merge 了 PR"] --> w3["两周后，同一个 bug<br/>另一个项目，数据丢了"] --> w4["你又喊 agent 来修<br/>agent 从头给你解释"] --> w5["三个月后<br/>你还是没搞懂背压的本质"] --> w6["下次又丢数据<br/>你永远依赖 agent"]
+    end
+
+    subgraph WITH["WITH coding-wisdom"]
+        direction TB
+        b1["agent 帮你搞定了"] --> b2["inbox 自动写了一条：<br/>背压必须在管道入口<br/>不是在出口打补丁"] --> b3["两周后<br/>OVERVIEW.md 检索到：<br/>架构认知 · 背压机制"] --> b4["你花了 30 秒重新加载"] --> b5["你自己改对了<br/>没喊 agent"] --> b6["三个月后<br/>那是你自己的判断力<br/>下次遇到，直接做对"]
+    end
+
+    WITHOUT ~~~ WITH
 ```
 
-三个关键词：**零摩擦捕获**、**异步蒸馏**、**循环复用**。
+---
+
+## 怎么工作
+
+```mermaid
+flowchart TD
+    SESSION["<b>编码会话</b><br/>重构 · Bug修复 · 模式复现<br/>方案选择 · 技术研究"]
+
+    HIGH["<b>inbox/high/</b><br/>永不过期"]
+    LOW["<b>inbox/low/</b><br/>7天后清理"]
+
+    REFS["<b>references/</b><br/>架构认知 · 编码技巧<br/>思维方式 · 技术栈认知"]
+
+    NEXT["下次编码<br/>agent 主动提醒你"]
+
+    SESSION -->|"捕获 (自动)"| HIGH
+    SESSION -->|"捕获 (低频)"| LOW
+    HIGH -->|"蒸馏 (你手动)"| REFS
+    LOW -->|"蒸馏 (你手动)"| REFS
+    REFS -->|"检索复用"| NEXT
+```
+
+---
 
 ## 安装
-
-### 方式一：手动复制
-
-把整个 `coding-wisdom` 文件夹复制到你的 Claude Code skills 目录：
 
 ```bash
 # macOS / Linux
@@ -36,196 +109,174 @@ cp -r coding-wisdom ~/.claude/skills/
 xcopy /E /I coding-wisdom %USERPROFILE%\.claude\skills\coding-wisdom
 ```
 
-### 方式二：git clone
+重启 Claude Code，安装完成。
 
-```bash
-cd ~/.claude/skills
-git clone https://github.com/your-username/coding-wisdom.git
-```
+---
 
-安装完成后，重启 Claude Code，你就能在 skills 列表里看到 `coding-wisdom`。
+## 托管到 GitHub（可选）
+
+1. **Fork** 本仓库到你的 GitHub（建议私有，保障数据安全）
+2. **Clone** 你的 fork 到 `~/.claude/skills/coding-wisdom`（代替上面的复制安装）
+3. 想追踪 `references/`？删掉 `.gitignore` 里对应的两行忽略规则
+4. 正常编码。agent 写 `inbox/`（本地，永不追踪），你蒸馏到 `references/`
+5. `git commit && git push` —— 每一次判断力增长都有版本记录
+
+---
 
 ## 快速开始
 
 ### 1. 正常编码
 
-不需要做任何特别的事。就像平时一样和 agent 一起写代码。
+你做你的事。agent 检测到认知裂缝时自动写入 `inbox/`。
 
 ### 2. agent 自动捕获
 
-当 agent 遇到以下情况时，它会自动往 `inbox/` 里写一条知识：
+| 触发事件 | tier | 例子 |
+|---|---|---|
+| 结构性重构 | high | 改核心数据结构、拆分模块 |
+| 非平凡 Bug 修复 | high | 逻辑错误、设计缺陷 |
+| 跨项目模式复现 | high | 不同项目里出现相似设计模式 |
+| 方案选择 | low | A vs B 选了 A，放弃 B 有理由 |
+| 技术研究 | low | 深入研究得出非文档直接结论 |
 
-| 事件 | 优先级 | 例子 |
-|------|--------|------|
-| 结构性重构 | high | 重命名核心数据结构、拆分模块 |
-| Bug 修复 | high | 修复逻辑错误、设计缺陷 |
-| 模式复现 | high | 在不同项目里看到相似的设计模式 |
-| 方案选择 | low | 在 A 和 B 之间选了 A，放弃 B 有理由 |
-| 技术研究 | low | 深入研究了一个技术点，得到非显然结论 |
+零摩擦——你不需要说"记下来"，它自己发生了。
 
-你不需要确认或批准——它就这么发生了。
+### 3. 蒸馏（每周 15 分钟）
 
-### 3. 蒸馏（建议每周 15 分钟）
+打开 `inbox/high/`。挑 2-3 条你觉得最有价值的。补充 `## 泛化`——从"这个项目的具体 bug"抽象到"任何系统遇到这个信号时应该检查什么"。更新 `_index.md`，跑 `bash scripts/sync-overview.sh`。
 
-```bash
-# 看看 inbox 里有什么
-ls ~/.claude/skills/coding-wisdom/inbox/high/
-```
+### 4. 循环复用
 
-挑 2-3 条感兴趣的，打开它们，补充「泛化」节——把项目细节抽象成通用原则。然后移到 `references/` 对应目录。
+下次编码，agent 自动检索 `references/`。当前场景和你蒸馏过的旧知识相关——它提醒你，你调用的是**你自己的判断**，不是 agent 的。
 
-### 4. 自动复用
+---
 
-下次编码时，agent 会自动检索 `references/` 里的知识。当它发现你当前的问题和之前学过的东西有关，它会提醒你。
+## 一条知识长什么样
 
-## 目录结构
-
-```
-coding-wisdom/
-├── SKILL.md                # agent 指令 + 开发者指南
-├── README.md               # 你正在读的文件
-├── OVERVIEW.md             # 你的知识版图全貌
-├── inbox/                  # 捕获区（等待蒸馏）
-│   ├── high/               #   高价值，永不过期
-│   └── low/                #   低价值，7 天后自动消失
-└── references/             # 知识库（蒸馏后）
-    ├── architecture/       #   架构认知
-    │   ├── _index.md       #     领域认知快照
-    │   ├── data-flow/      #     数据流设计
-    │   └── system-design/  #     系统设计模式
-    ├── coding/             #   编码技巧
-    │   ├── _index.md
-    │   └── python/         #     Python 惯用法
-    ├── mindset/            #   思维方式
-    │   └── _index.md
-    └── techstack/          #   技术栈认知
-        ├── _index.md
-        └── llm/            #     LLM 应用
-```
-
-## 知识条目长什么样
-
-每条知识都是一个 markdown 文件：
+核心结构：**我以为 → 其实是**。记录的是认知裂缝——你之前理解错了什么，现在理解对了。
 
 ```markdown
----
-trigger: "重构 PipelineContext 时发现的"
-crack: "fix"
-links:
-  - architecture/data-flow/declarative-persist.md
-created: 2026-04-30
----
-
 # TypedDict 是声明式契约，不是类型标注
 
 ## 我以为
 TypedDict 只是给 dict 加类型提示的工具。
 
 ## 其实是
-TypedDict 让数据结构成为自文档化的契约，
-每个处理步骤都声明自己需要什么、产出什么。
+TypedDict 让数据结构成为自文档化的契约——
+每个处理步骤声明自己需要什么、产出什么。
 
 ## 背景
-Insurance Atom Trigger 项目，Pipeline 重构阶段。
-多步骤数据流需要跨步骤的类型一致性保障。
+Insurance Atom Trigger，Pipeline 重构。多步骤数据流需要跨步骤类型一致性。
 
 ## 泛化
-任何多步骤数据处理系统都应该考虑声明式类型契约。
+凡多步骤数据流，入口契约不应散落在自然语言和 if/else 里。
 ```
 
-就这些。「我以为」和「其实是」是核心。「泛化」是蒸馏时补充的。
+---
 
-## 文件命名规则
+## 目录结构
 
 ```
-{日期}_{fix或learn}_{对象描述}.md
+coding-wisdom/
+├── SKILL.md                     # agent 指令：捕获规则、噪音过滤、动态加载
+├── OVERVIEW.md                  # 自动生成，你的知识版图全貌（禁止手动编辑）
+├── guides/                      # 按需加载的深层流程
+│   ├── distillation.md          #   蒸馏工作流和质量门
+│   ├── generalization.md        #   泛化四层模型（现象→模式→原则→可操作规则）
+│   ├── web-calibration.md       #   联网校准策略
+│   └── ascii-diagrams.md        #   ASCII 架构图规范
+├── templates/                   # 条目模板
+│   ├── capture-entry.md         #   捕获模板（30 秒写完）
+│   └── distilled-entry.md       #   蒸馏后的完整形态
+├── scripts/
+│   ├── sync-overview.sh         #   从 _index.md 自动生成 OVERVIEW.md (bash)
+│   ├── sync-overview.ps1        #   同上（PowerShell）
+│   └── setup-local-worktree.*   #   开发者本地隔离脚本
+├── inbox/                       # 本地个人数据（不受版本控制）
+│   ├── high/                    #   永不过期
+│   └── low/                     #   7 天后可清理
+└── references/                  # 你的个人知识库
+    ├── architecture/            #   架构认知
+    │   ├── _index.md
+    │   ├── data-flow/           #     数据流与契约设计
+    │   └── system-design/       #     系统设计模式
+    ├── coding/                  #   编码技巧
+    │   └── _index.md
+    ├── mindset/                 #   思维方式
+    │   └── _index.md
+    └── techstack/               #   技术栈深度认知
+        └── _index.md
 ```
 
-- `fix` — 以前理解错了，现在修正
-- `learn` — 以前不知道，现在知道了
+`_index.md` 是单一事实源。`OVERVIEW.md` 由脚本自动聚合——蒸馏完跑一次 `bash scripts/sync-overview.sh`，完事。
 
-例子：
-- `2026-04-30_fix_typeddict是契约不是标注.md`
-- `2026-04-30_learn_blake2b的digest_size选择.md`
-
-文件名就是索引。看到名字就知道这条知识讲什么。
+---
 
 ## 知识的四个维度
 
-`references/` 按认知维度组织，你可以根据需要添加或调整：
+| 维度 | 你在这里积累什么 |
+|---|---|
+| `architecture/` | 系统设计、模块边界、数据流、并发模式 |
+| `coding/` | 语言惯用法、反模式、数据结构选择 |
+| `mindset/` | 好品味、设计哲学、消除特殊情况的直觉 |
+| `techstack/` | Kafka rebalance、JWT 生命周期、分库分表实战 |
 
-| 维度 | 关注什么 | 例子 |
-|------|----------|------|
-| architecture | 系统设计、模块边界、数据流 | 声明式持久化、热重载模式 |
-| coding | 语言惯用法、编码模式、反模式 | TypedDict vs dict、哨兵值 |
-| mindset | 设计哲学、好品味、思维模型 | 消除特殊情况、简洁执念 |
-| techstack | 具体技术栈的深度理解 | Kafka rebalance、LLM tool use |
+---
 
-每个维度目录下有一个 `_index.md`，是这个领域的认知快照——3-5 句话概括你目前的理解。
+## 设计原则
 
-## 衰减机制
+1. **内化判断力，不是记 API** — 一条知识应该记录"我被纠正了什么"，不是"我第一次见到了什么"
+2. **30 秒捕获 > 完美格式** — 能 30 秒写完的才是可持续的
+3. **变少 > 变多** — 90 天未更新的条目标记陈旧，合并或删除
+4. **文件名即索引** — 看到 `2026-04-30_fix_backpressure-boundary.md` 就知道内容
 
-知识不会自动过期，但会被标记为"陈旧"。
-
-当一条知识超过 90 天没有被修改也没有被引用时，agent 会在蒸馏阶段提醒你审视它：
-
-- 还有价值？更新它
-- 被更好的理解取代了？合并或删除
-- 太冷门？删除
-
-知识应该在迭代中变少、变精，不是越来越多。
-
-## 自定义
-
-### 添加新的认知维度
-
-```bash
-mkdir -p ~/.claude/skills/coding-wisdom/references/your-dimension
-```
-
-在目录里创建 `_index.md`，写 3-5 句话描述这个维度关注什么。
-
-### 修改触发规则
-
-编辑 `SKILL.md` 的 frontmatter 部分。`triggers` 定义了什么事件触发捕获，`ignore_rules` 定义了什么噪音需要过滤。
-
-### 修改过期时间
-
-`SKILL.md` 的 frontmatter 里 `auto_expire.low` 控制低优先级条目的过期天数。默认 7 天。
-
-## 设计哲学
-
-这个 skill 基于几个核心信念：
-
-1. **认知裂缝 > 信息增量** — 记录你理解错误的瞬间，不是你第一次见到的 API
-2. **零摩擦 > 完美格式** — 30 秒能写完的才是好的捕获
-3. **关系 > 分类** — 用具体的 links 连接知识，不要纠结于把它放进哪个盒子
-4. **变少 > 变多** — 好的知识系统在迭代中变得更精炼，不是更臃肿
-5. **文件名即索引** — 看到名字就知道内容，不需要打开文件
+---
 
 ## FAQ
 
-**Q: 这和 CLAUDE.md / MEMORY.md 有什么区别？**
+**Q: 它和 CLAUDE.md / MEMORY.md 有什么区别？**
 
-- `CLAUDE.md` 是项目的架构约束和工作流规则
-- `MEMORY.md` 是跨会话的上下文记忆
-- `coding-wisdom` 是你的通用能力增长引擎——从所有项目中汲取养分
+- `CLAUDE.md`：项目级架构约束
+- `MEMORY.md`：跨会话上下文（你是谁、偏好什么）
+- `coding-wisdom`：**跨项目的个人工程判断增长引擎** — 跟着你走，不跟项目走
 
-**Q: inbox 会不会堆积太多噪音？**
+**Q: inbox 会堆满噪音吗？**
 
-high tier 只在真正有价值的事件触发。low tier 7 天自动消失。你不需要手动清理。
-
-**Q: 我需要每天蒸馏吗？**
-
-不需要。建议每周 15 分钟。甚至每月一次也行。inbox 里的 high tier 不会过期，你可以按自己的节奏来。
-
-**Q: 可以和团队共用吗？**
-
-当前设计是单人使用。多人场景需要解决知识所有权和冲突的问题，暂未支持。
+触发器只命中 5 种认知裂缝事件。high tier 不过期，low tier 7 天自动消失。
 
 **Q: 能不能自动蒸馏？**
 
-蒸馏的核心动作是"从项目细节抽象到通用原则"——这需要人类的判断力。agent 可以辅助，但不能替代。
+蒸馏是从"项目具体细节"到"任何系统都适用的原则"——这步需要你的判断力介入。agent 可以帮你补泛化和联网校准，但最终是你决定什么值得保留。
+
+---
+
+## 参与贡献
+
+**一个人对"好判断力"的定义永远是窄的。** 你的使用习惯、蒸馏角度、发现的边界情况——都能让这个 skill 变得更好。
+
+几条具体的贡献路径：
+
+```
+你的位置                        你可以做什么
+────────                        ────────────
+用了一段时间，有反馈              → 提 Issue：什么场景捕获太多/太少、什么规则让你烦
+发现 bug 或有功能想法              → 提 Issue 或直接开 PR
+改了捕获规则/噪音过滤              → PR 到 SKILL.md
+写了新的 guide 或改进现有 guide    → PR 到 guides/
+改进了模板                        → PR 到 templates/
+写了跨平台脚本                     → PR 到 scripts/
+翻译 README                       → PR，新文件 README.zh-CN.md 这种格式
+```
+
+**Issue 和 PR 都欢迎。** 不确定该走哪条路？先开 Issue 聊聊。
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Clannad47/coding-wisdom&type=Date)](https://star-history.com/#Clannad47/coding-wisdom&Date)
+
+---
 
 ## 许可证
 

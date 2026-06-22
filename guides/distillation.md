@@ -1,0 +1,69 @@
+# Distillation Guide
+
+Use this guide only when the user asks to distill, organize, review, or move captured entries from `inbox/` into `references/`.
+
+## Core Rule
+
+Research before moving. Do not treat `mv inbox/... references/...` as distillation.
+
+Distillation means turning project-specific details into reusable engineering judgment, then validating that judgment with comparison, external calibration, and operational rules.
+
+## Workflow
+
+1. Browse `inbox/high/`.
+2. Cluster related entries by theme.
+3. Pick 3-5 entries worth deep work. Do not try to empty the whole inbox.
+4. For each selected entry, identify the core technical concept to research.
+5. Do at least one web search per selected entry when current external practice matters.
+6. Strengthen `## 泛化` until it reaches at least level 3 in `guides/generalization.md`.
+7. Add or update `## 联网校准` using `guides/web-calibration.md`.
+8. Add a diagram when structure, lifecycle, ownership, or data flow is central; use `guides/ascii-diagrams.md`.
+9. Check the quality gate below.
+10. Move only passing entries into the right `references/` directory.
+11. Update the target `_index.md` — this is the single source of truth.
+12. Run the sync script to regenerate `OVERVIEW.md`:
+    - `bash scripts/sync-overview.sh` (macOS/Linux/Git Bash)
+    - `powershell -ExecutionPolicy Bypass -File scripts/sync-overview.ps1` (Windows)
+13. Verify: `git diff OVERVIEW.md` shows the expected additions.
+
+## Quality Gate
+
+Each high-value entry moved into `references/` should satisfy at least 3 of these:
+
+- Contains a comparison structure: good vs bad, before vs after, or pattern A vs pattern B.
+- Names at least one anti-pattern.
+- Contains an operational rule: when a future signal appears, what check should be performed.
+- Has a `## 联网校准` section with at least one authoritative external source.
+- Uses an insight title, not a topic title.
+- Includes a self-contained ASCII diagram when a diagram materially improves understanding.
+
+## Full Entry Shape
+
+Use `templates/distilled-entry.md` as the target shape. Do not require every section to be long; require every section to do real work.
+
+## Staleness Check
+
+During distillation, find old entries:
+
+```bash
+find references/ -name "*.md" -not -name "_index.md" -mtime +90
+```
+
+Show old entries to the developer and ask whether to update, merge, or delete them.
+
+## Anti-Patterns
+
+| Anti-pattern | Better action |
+| --- | --- |
+| Processing 30 inbox entries shallowly | Deep-process 3-5 entries |
+| Moving files as the definition of done | Move only after the quality gate passes |
+| Writing one generic sentence under `## 泛化` | Reach pattern, principle, and operational rule levels |
+| Trusting the original intuition | Use external calibration to verify or correct it |
+| Emptying inbox as the goal | Increasing judgment quality as the goal |
+
+## Lifecycle
+
+```text
+coding -> capture -> inbox -> research -> generalize + calibrate -> quality gate -> references -> reuse
+                                           ^_______________________________________________|
+```

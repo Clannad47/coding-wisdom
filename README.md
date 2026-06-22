@@ -117,6 +117,31 @@ flowchart TD
 
 ## 安装
 
+### 方式一：Claude Code 插件市场（推荐）
+
+```
+/plugin marketplace add Clannad47/coding-wisdom
+/plugin install coding-wisdom@coding-wisdom
+```
+
+### 方式二：npm
+
+```bash
+# 安装
+npm install -g coding-wisdom       # 全局安装，自动部署，一步到位
+npx coding-wisdom                  # 或一键免安装
+
+# 更新
+npm update -g coding-wisdom        # postinstall 自动重新部署
+npx coding-wisdom@latest           # npx 方式
+
+# 卸载
+coding-wisdom --uninstall          # 删除 skill，清空 inbox/references
+npm uninstall -g coding-wisdom     # 移除 npm 包
+```
+
+### 方式三：手动安装
+
 ```bash
 # macOS / Linux
 cp -r coding-wisdom ~/.claude/skills/
@@ -132,10 +157,11 @@ xcopy /E /I coding-wisdom %USERPROFILE%\.claude\skills\coding-wisdom
 ## 托管到 GitHub（可选）
 
 1. **Fork** 本仓库到你的 GitHub（建议私有，保障数据安全）
-2. **Clone** 你的 fork 到 `~/.claude/skills/coding-wisdom`（代替上面的复制安装）
+2. **Clone** 你的 fork 到 `~/.claude/skills/coding-wisdom`
 3. 想追踪 `references/`？删掉 `.gitignore` 里对应的两行忽略规则
 4. 正常编码。agent 写 `inbox/`（本地，永不追踪），你蒸馏到 `references/`
 5. `git commit && git push` —— 每一次判断力增长都有版本记录
+6. 更新：`git pull` 即可获得最新 skill 逻辑，用户数据不受影响
 
 ---
 

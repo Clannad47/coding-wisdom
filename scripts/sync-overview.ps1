@@ -43,12 +43,23 @@ function Count-Entries($Dir) {
     return $n
 }
 
-function Count-EntriesRecursive($Dir) {
+function Count-IndexItems($File) {
+    if (-not (Test-Path $File)) { return 0 }
     $n = 0
-    if (Test-Path $Dir) {
-        Get-ChildItem $Dir -Filter "*.md" -File -Recurse | ForEach-Object {
-            if ($_.Name -ne "_index.md") { $n++ }
-        }
+    foreach ($line in (Read-Utf8Lines $File)) {
+        if ($line -match '^- ') { $n++ }
+    }
+    return $n
+}
+
+function Count-DomainItems($File) {
+    if (-not (Test-Path $File)) { return 0 }
+    $n = 0
+    $inMeta = $false
+    foreach ($line in (Read-Utf8Lines $File)) {
+        if ($line -match '^## 核心关注') { $inMeta = $true; continue }
+        if ($line -match '^## ' -or $line -match '^### ') { $inMeta = $false }
+        if (-not $inMeta -and $line -match '^- ') { $n++ }
     }
     return $n
 }
@@ -104,7 +115,30 @@ foreach ($domainDir in $DomainDirs) {
     if (-not $title) { $title = $dname }
     $desc = Get-IndexDescription $idxFile
 
-    $total = Count-EntriesRecursive $domainDir.FullName
+    # Collect subdomain names and counts from _index.md (single source of truth)
+    $subDirs = Get-ChildItem $domainDir.FullName -Directory -ErrorAction SilentlyContinue | Sort-Object Name
+    $subdomainNames = [System.Collections.Generic.List[string]]::new()
+    $subdomainList = [System.Collections.Generic.List[hashtable]]::new()
+    $subdomainTotal = 0
+    foreach ($subDir in $subDirs) {
+        $subIdx = Join-Path $subDir.FullName "_index.md"
+        $subCount = 0
+        if (Test-Path $subIdx) { $subCount = Count-IndexItems $subIdx }
+        if ($subCount -gt 0 -or (Test-Path $subIdx)) {
+            $subdomainNames.Add($subDir.Name)
+            $subdomainList.Add(@{ Name = $subDir.Name; Path = $subDir.FullName; Count = $subCount })
+            $subdomainTotal += $subCount
+        }
+    }
+
+    # Domain total: from sub _index.md if subdomains exist, else from parent _index.md
+    if ($subdomainNames.Count -gt 0) {
+        $total = $subdomainTotal
+    }
+    elseif (Test-Path $idxFile) {
+        $total = Count-DomainItems $idxFile
+    }
+    else { $total = 0 }
     $GrandTotal += $total
     $label = if ($DomainLabels.ContainsKey($dname)) { $DomainLabels[$dname] } else { $dname }
     $Parts.Add("${label} ${total}")
@@ -112,19 +146,6 @@ foreach ($domainDir in $DomainDirs) {
     $Lines.Add("")
     $Lines.Add("## ${title} (${dname}/) -- ${total} 条")
     if ($desc) { $Lines.Add("> ${desc}") }
-
-    # Collect subdomain names and data
-    $subDirs = Get-ChildItem $domainDir.FullName -Directory -ErrorAction SilentlyContinue | Sort-Object Name
-    $subdomainNames = [System.Collections.Generic.List[string]]::new()
-    $subdomainList = [System.Collections.Generic.List[hashtable]]::new()
-    foreach ($subDir in $subDirs) {
-        $subCount = Count-Entries $subDir.FullName
-        $subIdx = Join-Path $subDir.FullName "_index.md"
-        if ($subCount -gt 0 -or (Test-Path $subIdx)) {
-            $subdomainNames.Add($subDir.Name)
-            $subdomainList.Add(@{ Name = $subDir.Name; Path = $subDir.FullName; Count = $subCount })
-        }
-    }
 
     # ---- meta sections from top-level index ----
     $inSubdomainSection = $false

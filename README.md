@@ -4,7 +4,7 @@
   <img src="LOGO.png" width="150" alt="Coding Wisdom">
 </p>
 
-> **agent 错题集 + 你的能力增强计。**
+> **agent 错题集 + 你的能力增强剂。**
 
 ---
 
@@ -20,7 +20,7 @@ agent 替你做了判断，你没把判断变成自己的。
 
 > **agent 把答案给了你，但判断过程没给。**
 
-**AI 是能力倍增器，但倍增器的支点是你自己的基线。**
+**AI 是能力倍增器，但它的支点是你自己的基线。**
 基线不涨，乘出来的结果永远锁死在那个支点上。
 
 ---
@@ -31,9 +31,15 @@ agent 替你做了判断，你没把判断变成自己的。
 ② 你有空时，15 分钟蒸馏成**属于你的判断力**
 ③ 下次再遇到，你不靠 agent 也能做出正确决策
 
+<p align="center">
+  <img src="post_CN.png" width="600" alt="Coding Wisdom">
+</p>
+
 ---
 
 ## 它是什么
+
+<div align="center">
 
 ```mermaid
 flowchart TD
@@ -50,15 +56,19 @@ flowchart TD
     end
 ```
 
+</div>
+
 **是 agent 错题集**：agent 帮你解决了 Kafka rebalance、JWT 续期、分库分表——那些你第一次接触就被推着往前走的时刻，不记下来就永远没了。
 
-**是你的增强计**：每周打开 `OVERVIEW.md`，看一眼知识版图。那个数字不是 agent 有多强——**是你内化了多少判断力。**
+**是你的增强剂**：每周打开 `OVERVIEW.md`，看一眼知识版图。那个数字不是 agent 有多强——**是你吸取了多少判断力。**
 
 ---
 
 ## 用之前 vs 用之后
 
 一个 Kafka 背压问题。时间线相同，结果不同。
+
+<div align="center">
 
 ```mermaid
 flowchart LR
@@ -75,9 +85,13 @@ flowchart LR
     WITHOUT ~~~ WITH
 ```
 
+</div>
+
 ---
 
 ## 怎么工作
+
+<div align="center">
 
 ```mermaid
 flowchart TD
@@ -96,6 +110,8 @@ flowchart TD
     LOW -->|"蒸馏 (你手动)"| REFS
     REFS -->|"检索复用"| NEXT
 ```
+
+</div>
 
 ---
 
@@ -225,7 +241,7 @@ coding-wisdom/
 
 ## 设计原则
 
-1. **内化判断力，不是记 API** — 一条知识应该记录"我被纠正了什么"，不是"我第一次见到了什么"
+1. **吸取判断力，不是记 API** — 一条知识应该记录"我被纠正了什么"，不是"我第一次见到了什么"
 2. **30 秒捕获 > 完美格式** — 能 30 秒写完的才是可持续的
 3. **变少 > 变多** — 90 天未更新的条目标记陈旧，合并或删除
 4. **文件名即索引** — 看到 `2026-04-30_fix_backpressure-boundary.md` 就知道内容

@@ -43,13 +43,21 @@ Use `templates/distilled-entry.md` as the target shape. Do not require every sec
 
 ## Staleness Check
 
-During distillation, find old entries:
+陈旧标记由 `scripts/cleanup.sh` (bash) 或 `scripts/cleanup.ps1` (PowerShell) 自动完成——脚本在超过 90 天的条目 frontmatter 中添加 `stale: true`。
+
+蒸馏时，检索已标记条目：
+
+```bash
+grep -rl '^stale: true' references/
+```
+
+也可以通过 `find` 确认：
 
 ```bash
 find references/ -name "*.md" -not -name "_index.md" -mtime +90
 ```
 
-Show old entries to the developer and ask whether to update, merge, or delete them.
+将陈旧条目展示给开发者，询问是更新、合并还是删除。处理完成后移除 `stale: true` 行。
 
 ## Anti-Patterns
 
@@ -66,4 +74,5 @@ Show old entries to the developer and ask whether to update, merge, or delete th
 ```text
 coding -> capture -> inbox -> research -> generalize + calibrate -> quality gate -> references -> reuse
                                            ^_______________________________________________|
+                                                          reuse surfaces new gaps
 ```

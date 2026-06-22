@@ -71,6 +71,22 @@ coding-wisdom/
 - 位置：`inbox/{tier}/`
 - 保留期：`high` 永不过期，`low` 默认 7 天后可清理。
 
+## 自清洁
+
+清理脚本：
+
+- `bash scripts/cleanup.sh` (macOS / Linux / Git Bash)
+- `powershell -ExecutionPolicy Bypass -File scripts/cleanup.ps1` (Windows)
+
+两个触发点，均静默执行，不提醒不确认：
+
+1. **会话启动**（skill 加载时）：自动跑一次。low 过期条目直接删除，references 过期条目标记 `stale: true`。完事后一句带过，不追问。
+2. **蒸馏前**：先跑一次，确保 stale 标记是最新的，再开始挑条目。
+
+脚本逻辑：
+- 删除 `inbox/low/` 中超过 7 天的条目。
+- 在 `references/` 中超过 90 天未更新的条目 frontmatter 中添加 `stale: true`（已标记则跳过）。
+
 ## 索引维护
 
 `_index.md` 是单一事实源。`OVERVIEW.md` 由 sync 脚本自动生成，禁止手动编辑。

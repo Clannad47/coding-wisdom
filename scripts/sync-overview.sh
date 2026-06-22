@@ -38,16 +38,23 @@ count_entries() {
     echo "$n"
 }
 
-count_entries_recursive() {
-    local dir="$1"
-    local n=0
-    while IFS= read -r f; do
-        case "$(basename "$f")" in
-            _index.md) ;;
-            *) n=$((n + 1)) ;;
-        esac
-    done < <(find "$dir" -name "*.md" -type f 2>/dev/null)
-    echo "$n"
+# Count entry lines in an _index.md file (all - lines)
+count_index_items() {
+    local idx="$1"
+    if [ ! -f "$idx" ]; then echo 0; return 0; fi
+    awk '/^- / { n++ } END { print n+0 }' "$idx"
+}
+
+# Count entry lines excluding "核心关注" meta section (for domain totals)
+count_domain_items() {
+    local idx="$1"
+    if [ ! -f "$idx" ]; then echo 0; return 0; fi
+    awk '
+    /^## 核心关注/ { in_meta=1; next }
+    /^## / || /^### / { in_meta=0 }
+    !in_meta && /^- / { n++ }
+    END { print n+0 }
+    ' "$idx"
 }
 
 index_title() {
@@ -117,7 +124,30 @@ NOW=$(date '+%Y-%m-%d %H:%M' 2>/dev/null || date 2>/dev/null || echo "")
             desc=$(index_description "$idx_file")
         fi
 
-        total=$(count_entries_recursive "$domain_dir")
+        # Collect subdomain names and counts from _index.md (single source of truth)
+        subdomain_names=""
+        subdomain_total=0
+        for sub_dir in $(find "$domain_dir" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort); do
+            subname=$(basename "$sub_dir")
+            sub_idx="$sub_dir/_index.md"
+            sub_count=0
+            if [ -f "$sub_idx" ]; then
+                sub_count=$(count_index_items "$sub_idx")
+            fi
+            if [ "$sub_count" -gt 0 ] || [ -f "$sub_idx" ]; then
+                subdomain_names="$subdomain_names $subname"
+                subdomain_total=$((subdomain_total + sub_count))
+            fi
+        done
+
+        # Domain total: from sub _index.md if subdomains exist, else from parent _index.md
+        if [ -n "$subdomain_names" ]; then
+            total=$subdomain_total
+        elif [ -f "$idx_file" ]; then
+            total=$(count_domain_items "$idx_file")
+        else
+            total=0
+        fi
         GRAND_TOTAL=$((GRAND_TOTAL + total))
         label="${DOMAIN_LABELS[$dname]:-$dname}"
         PARTS+=("${label} ${total}")
@@ -125,16 +155,6 @@ NOW=$(date '+%Y-%m-%d %H:%M' 2>/dev/null || date 2>/dev/null || echo "")
         echo ""
         echo "## ${title} (${dname}/) — ${total} 条"
         [ -n "$desc" ] && echo "> ${desc}"
-
-        # Collect subdomain names for filtering top-level sections
-        subdomain_names=""
-        for sub_dir in $(find "$domain_dir" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort); do
-            subname=$(basename "$sub_dir")
-            sub_count=$(count_entries "$sub_dir")
-            if [ "$sub_count" -gt 0 ] || [ -f "$sub_dir/_index.md" ]; then
-                subdomain_names="$subdomain_names $subname"
-            fi
-        done
 
         # ---- meta sections from top-level index ----
         if [ -f "$idx_file" ]; then
@@ -183,7 +203,10 @@ NOW=$(date '+%Y-%m-%d %H:%M' 2>/dev/null || date 2>/dev/null || echo "")
         for sub_dir in $(find "$domain_dir" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort); do
             subname=$(basename "$sub_dir")
             sub_idx="$sub_dir/_index.md"
-            sub_count=$(count_entries "$sub_dir")
+            sub_count=0
+            if [ -f "$sub_idx" ]; then
+                sub_count=$(count_index_items "$sub_idx")
+            fi
 
             if [ "$sub_count" -eq 0 ] && [ ! -f "$sub_idx" ]; then
                 continue

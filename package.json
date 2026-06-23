@@ -1,6 +1,6 @@
 {
   "name": "coding-wisdom",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "agent 错题集 + 你的能力增强剂 — 从编码会话中自动捕获认知裂缝，蒸馏为可复用的工程判断",
   "bin": {
     "coding-wisdom": "./install.js"

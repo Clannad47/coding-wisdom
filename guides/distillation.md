@@ -10,21 +10,22 @@ Distillation means turning project-specific details into reusable engineering ju
 
 ## Workflow
 
-1. Browse `inbox/high/`.
-2. Cluster related entries by theme.
-3. Pick 3-5 entries worth deep work. Do not try to empty the whole inbox.
-4. For each selected entry, identify the core technical concept to research.
-5. Do at least one web search per selected entry when current external practice matters.
-6. Strengthen `## 泛化` until it reaches at least level 3 in `guides/generalization.md`.
-7. Add or update `## 联网校准` using `guides/web-calibration.md`.
-8. Add a diagram when structure, lifecycle, ownership, or data flow is central; use `guides/ascii-diagrams.md`.
-9. Check the quality gate below.
-10. Move only passing entries into the right `references/` directory.
-11. Update the target `_index.md` — this is the single source of truth.
-12. Run the sync script to regenerate `OVERVIEW.md`:
+1. Quick check: `grep -rl "disposition: rejected" inbox/low/` — 展示本周被门禁拒绝的条目摘要，询问用户是否有误杀需捞回。
+2. Browse `inbox/high/`.
+3. Cluster related entries by theme.
+4. Pick 3-5 entries worth deep work. Do not try to empty the whole inbox.
+5. For each selected entry, identify the core technical concept to research.
+6. Do at least one web search per selected entry when current external practice matters.
+7. Strengthen `## 泛化` until it reaches at least level 3 in `guides/generalization.md`.
+8. Add or update `## 联网校准` using `guides/web-calibration.md`.
+9. Add a diagram when structure, lifecycle, ownership, or data flow is central; use `guides/ascii-diagrams.md`.
+10. Check the quality gate below.
+11. Move only passing entries into the right `references/` directory.
+12. Update the target `_index.md` — this is the single source of truth.
+13. Run the sync script to regenerate `OVERVIEW.md`:
     - `bash scripts/sync-overview.sh` (macOS/Linux/Git Bash)
     - `powershell -ExecutionPolicy Bypass -File scripts/sync-overview.ps1` (Windows)
-13. Verify: `git diff OVERVIEW.md` shows the expected additions.
+14. Verify: `git diff OVERVIEW.md` shows the expected additions.
 
 ## Quality Gate
 

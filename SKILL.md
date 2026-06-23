@@ -37,13 +37,13 @@ coding-wisdom/
 
 ## 捕获规则
 
-当以下事件发生时，往 `inbox/` 写入一条知识：
+当以下事件发生时，往 `inbox/` 写入一条知识（tier 由通用性门禁最终决定）：
 
-1. 重构（high）：执行了结构性重构，例如数据结构变更、模块拆分、架构调整。
-2. Bug 修复（high）：修复了非平凡 bug，例如逻辑错误、设计缺陷。
-3. 模式复现（high）：在不同项目或模块中识别到相似模式。
-4. 方案选择（low）：在多个实现方案中做了选择，且被放弃的方案有合理理由。
-5. 技术研究（low）：完成技术研究，产出非文档直接结论。
+1. 重构：执行了结构性重构，例如数据结构变更、模块拆分、架构调整。
+2. Bug 修复：修复了非平凡 bug，例如逻辑错误、设计缺陷。
+3. 模式复现：在不同项目或模块中识别到相似模式。
+4. 方案选择：在多个实现方案中做了选择，且被放弃的方案有合理理由。
+5. 技术研究：完成技术研究，产出非文档直接结论。
 
 ## 噪音过滤
 
@@ -54,15 +54,35 @@ coding-wisdom/
 - 配置文件修改，例如版本号、端口号。
 - 测试文件的 mock 调整。
 
+## 通用性门禁（路由，非拦截）
+
+噪音过滤之后、写入 inbox 之前，逐项确认。门禁不判死刑，只决定条目去向：
+
+**Q1 双场景测试**: 能在至少一个其他场景/项目/技术栈中找到此洞察的适用场景吗？
+**Q2 去项目化测试**: 去掉项目名、模块名、文件名后，洞察仍成立吗？
+
+两项任一通过 → 继续判断初见或复现 → 决定 tier。
+两项都不通过 → `inbox/low/`，frontmatter 标记 `disposition: rejected`，7 天后自然淘汰。
+
+**初见 vs 复现**: Q1 或 Q2 通过后，判断这是第几次见到此模式。
+- 第 1 次 → `low`，标记 `disposition: first_sight`。
+- 第 2+ 次 → `high`，标记 `disposition: recurrence`，无论之前门禁结果如何。
+
+**复现检测**: 捕获新条目时，检查 `inbox/low/` 中 `disposition: rejected` 条目是否有同主题的。第二次出现时，新条目升级为 `high`（`disposition: recurrence`），旧条目在 frontmatter 中追加 `overturned: true`（保留在 low 等自然过期）。
+
+**被拒条目透明**: `disposition: rejected` 的条目留在 `low/`。用 `grep -rl "disposition: rejected" inbox/low/` 审计什么差点污染知识库，据此校准门禁规则。
+
 ## 捕获流程
 
-1. 判断触发类型和 tier。
-2. 生成文件名：`{YYYY-MM-DD}_{fix|learn}_{对象描述}.md`。
+1. 判断触发类型。
+2. 通过噪音过滤。
+3. 通过通用性门禁 → 决定 tier。
+4. 生成文件名：`{YYYY-MM-DD}_{fix|learn}_{对象描述}.md`。
    - `fix`：以前理解错了，现在修正。
    - `learn`：以前不知道，现在知道了。
-3. 写入 `inbox/{tier}/`。
-4. 使用 `templates/capture-entry.md`。
-5. 写入后检查同目录是否有相关条目；如有，在 frontmatter 的 `links` 中关联。
+5. 写入 `inbox/{tier}/`。
+6. 使用 `templates/capture-entry.md`，frontmatter 中填写门禁结果。
+7. 写入后检查同目录是否有相关条目；如有，在 frontmatter 的 `links` 中关联。
 
 ## 捕获格式
 
@@ -111,7 +131,7 @@ coding-wisdom/
 
 ## 与现有系统的关系
 
-- `CLAUDE.md`：项目级约束和工作流规则。
-- `MEMORY.md`：跨会话上下文记忆。
+- `CLAUDE.md` / `AGENTS.md`：项目级约束和工作流规则。
+- `MEMORY.md` / `.codex/memories/`：跨会话上下文记忆。
 - `lessons`：项目级错题集。
 - `coding-wisdom`：跨项目的个人工程判断增长系统。

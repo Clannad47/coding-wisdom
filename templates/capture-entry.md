@@ -4,6 +4,7 @@ crack: "fix 或 learn"
 links:
   - path/to/related.md
 created: YYYY-MM-DD
+disposition: first_sight   # first_sight | recurrence | rejected — 通用性门禁结果
 ---
 
 # 标题即洞察（一句话概括认知裂缝）

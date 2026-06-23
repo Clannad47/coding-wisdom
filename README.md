@@ -25,15 +25,17 @@ agent 替你做了判断，你没把判断变成自己的。
 
 ---
 
+<p align="center">
+  <img src="post_CN.png" width="600" alt="Coding Wisdom">
+</p>
+
+---
+
 **coding-wisdom 做的事情很简单：**
 
 ① agent 替你跨过去的那个门槛——它自动记下来
 ② 你有空时，15 分钟蒸馏成**属于你的判断力**
 ③ 下次再遇到，你不靠 agent 也能做出正确决策
-
-<p align="center">
-  <img src="post_CN.png" width="600" alt="Coding Wisdom">
-</p>
 
 ---
 
@@ -97,15 +99,19 @@ flowchart LR
 flowchart TD
     SESSION["<b>编码会话</b><br/>重构 · Bug修复 · 模式复现<br/>方案选择 · 技术研究"]
 
-    HIGH["<b>inbox/high/</b><br/>永不过期"]
-    LOW["<b>inbox/low/</b><br/>7天后清理"]
+    GATE["<b>通用性门禁</b><br/>Q1 双场景测试<br/>Q2 去项目化测试"]
+
+    HIGH["<b>inbox/high/</b><br/>复现 · 永不过期"]
+    LOW["<b>inbox/low/</b><br/>初见/未通过 · 7天后清理"]
 
     REFS["<b>references/</b><br/>架构认知 · 编码技巧<br/>思维方式 · 技术栈认知"]
 
     NEXT["下次编码<br/>agent 主动提醒你"]
 
-    SESSION -->|"捕获 (自动)"| HIGH
-    SESSION -->|"捕获 (低频)"| LOW
+    SESSION -->|"捕获 (自动)"| GATE
+    GATE -->|"通过 + 复现"| HIGH
+    GATE -->|"通过 + 初见"| LOW
+    GATE -->|"未通过"| LOW
     HIGH -->|"蒸馏 (你手动)"| REFS
     LOW -->|"蒸馏 (你手动)"| REFS
     REFS -->|"检索复用"| NEXT
@@ -116,6 +122,12 @@ flowchart TD
 ---
 
 ## 安装
+
+> **Agent 安装指引** — 把下面这行发给任意 AI 编码助手（Claude Code、Codex CLI 等），让它自己读协议、自己装，无需人工操作：
+>
+> ```
+> 请按照 https://github.com/Clannad47/coding-wisdom/blob/main/AGENT_INSTALL.md 安装 coding-wisdom
+> ```
 
 ### 方式一：Claude Code 插件市场（推荐）
 
@@ -152,6 +164,30 @@ xcopy /E /I coding-wisdom %USERPROFILE%\.claude\skills\coding-wisdom
 
 重启 Claude Code，安装完成。
 
+### Codex CLI
+
+```bash
+npm install -g coding-wisdom              # install.js 自动检测并部署到 ~/.codex/skills/
+```
+
+或通过 Codex 技能安装器：
+
+```
+$skill-installer Clannad47/coding-wisdom
+```
+
+---
+
+## 平台兼容
+
+同时支持 Claude Code 和 Codex CLI（Agent Skills 开放标准）。差异仅在配置文件命名：
+
+| 概念 | Claude Code | Codex CLI |
+|------|------------|-----------|
+| 项目上下文 | `CLAUDE.md` | `AGENTS.md` |
+| 跨会话记忆 | `MEMORY.md` | `.codex/memories/` |
+| Skill 路径 | `~/.claude/skills/` | `~/.codex/skills/` |
+
 ---
 
 ## 托管到 GitHub（可选）
@@ -173,13 +209,15 @@ xcopy /E /I coding-wisdom %USERPROFILE%\.claude\skills\coding-wisdom
 
 ### 2. agent 自动捕获
 
-| 触发事件 | tier | 例子 |
-|---|---|---|
-| 结构性重构 | high | 改核心数据结构、拆分模块 |
-| 非平凡 Bug 修复 | high | 逻辑错误、设计缺陷 |
-| 跨项目模式复现 | high | 不同项目里出现相似设计模式 |
-| 方案选择 | low | A vs B 选了 A，放弃 B 有理由 |
-| 技术研究 | low | 深入研究得出非文档直接结论 |
+| 触发事件 | 例子 |
+|---|---|
+| 结构性重构 | 改核心数据结构、拆分模块 |
+| 非平凡 Bug 修复 | 逻辑错误、设计缺陷 |
+| 跨项目模式复现 | 不同项目里出现相似设计模式 |
+| 方案选择 | A vs B 选了 A，放弃 B 有理由 |
+| 技术研究 | 深入研究得出非文档直接结论 |
+
+> tier 由通用性门禁决定：通过 Q1/Q2 + 复现 → `high`，初见或未通过 → `low`（7 天后清理）
 
 零摩擦——你不需要说"记下来"，它自己发生了。
 
